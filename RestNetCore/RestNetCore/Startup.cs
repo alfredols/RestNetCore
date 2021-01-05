@@ -12,6 +12,15 @@ using RestNetCore.Business.Implementations;
 using Serilog;
 using RestNetCore.Repository.Generic;
 using Microsoft.AspNetCore.Rewrite;
+using RestNetCore.Services;
+using RestNetCore.Services.Implementations;
+using RestNetCore.Repository;
+using RestNetCore.Configurations;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RestNetCore
 {
@@ -29,27 +38,82 @@ namespace RestNetCore
                 .WriteTo.Console()
                 .CreateLogger();
         }
-                
+
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+
+            var tokenConfigurations = new TokenConfiguration();
+
+            new ConfigureFromConfigurationOptions<TokenConfiguration>(
+                    Configuration.GetSection("TokenConfigurations")
+                )
+                .Configure(tokenConfigurations);
+
+            services.AddSingleton(tokenConfigurations);
+
+            //Parametros de autenticação
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = tokenConfigurations.Issuer,
+                    ValidAudience = tokenConfigurations.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenConfigurations.Secret))
+                };
+            });
+
+            services.AddAuthorization(auth =>
+            {
+                auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
+                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+                    .RequireAuthenticatedUser().Build());
+            });
+
+
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+               builder =>
+               {
+                   builder.AllowAnyOrigin();
+                   builder.AllowAnyMethod();
+                   builder.AllowAnyHeader();
+               });
+            });
+
             var connectionString = Configuration["MySqlConnection:MySqlConnectionString"];
             services.AddDbContext<MySQLContext>(options => options.UseMySql(connectionString));
 
 
-            if (Environment.IsDevelopment()) {
+            if (Environment.IsDevelopment())
+            {
 
                 MigrateDatabase(connectionString);
-                
-            
+
+
             }
             services.AddApiVersioning();
             services.AddControllers();
 
             //Dependency Injection 
-            services.AddScoped<IPersonBusiness, PersonBusinessImplementation>();                               
+            services.AddScoped<IPersonBusiness, PersonBusinessImplementation>();
             services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<ILoginBusiness, LoginBusinessImplementation>();
+            services.AddTransient<ITokenService, TokenService>();
+            services.AddScoped<IUserRepository, UserRepository>();
+
 
             services.AddSwaggerGen(c =>
             {
@@ -57,10 +121,10 @@ namespace RestNetCore
                 {
                     Title = $"APIs PRODAM-SP",
                     Version = "1.0",//description.ApiVersion.ToString(),
-                    Description = "Documentação das APIs PRODAM-SP",                    
+                    Description = "Documentação das APIs PRODAM-SP",
                 });
 
-              
+
                 ////Adicionando jwt para segurança
                 //c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 //{
@@ -90,30 +154,28 @@ namespace RestNetCore
 
         }
 
-        private void MigrateDatabase(string connectionString)
+        private void MigrateDatabase(string connection)
         {
             try
             {
-
-                var evolveConnection = new MySql.Data.MySqlClient.MySqlConnection(connectionString);
-                var evolve = new Evolve.Evolve(evolveConnection, msg => Log.Logger.Information(msg))
+                var evolveConnection = new MySql.Data.MySqlClient.MySqlConnection(connection);
+                var evolve = new Evolve.Evolve(evolveConnection, msg => Log.Information(msg))
                 {
-                    Locations = new List<string> { "db/migrations" },
+                    Locations = new List<string> { "db/migrations", "db/dataset" },
                     IsEraseDisabled = true,
                 };
-
                 evolve.Migrate();
             }
             catch (Exception ex)
             {
-
-                Log.Error("Database migration failed",ex);
+                Log.Error("Database migration failed", ex);
+                throw;
             }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        
+
         {
             if (env.IsDevelopment())
             {
@@ -125,6 +187,7 @@ namespace RestNetCore
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseCors();
 
             app.UseEndpoints(endpoints =>
             {
@@ -148,6 +211,6 @@ namespace RestNetCore
 
         }
 
-        
+
     }
 }

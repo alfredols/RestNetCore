@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using RestNetCore.Model;
 using RestNetCore.Business;
 using RestNetCore.Data.VO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RestNetCore.Controllers
 {
@@ -31,6 +32,7 @@ namespace RestNetCore.Controllers
         [ProducesResponseType((204), Type = typeof(List<PersonVO>))]
         [ProducesResponseType((400), Type = typeof(List<PersonVO>))]
         [ProducesResponseType((401), Type = typeof(List<PersonVO>))]
+        [Authorize("Bearer")]
         public IActionResult Get() {            
             return Ok(_personBusiness.FindAll());
         }
