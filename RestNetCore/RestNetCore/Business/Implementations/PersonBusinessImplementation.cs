@@ -1,6 +1,7 @@
 ﻿using RestNetCore.Model;
 using RestNetCore.Model.Context;
 using RestNetCore.Repository;
+using RestNetCore.Repository.Generic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,18 +12,22 @@ namespace RestNetCore.Business.Implementations
     public class PersonBusinessImplementation : IPersonBusiness
 
     {
-        private readonly IPersonRepository _repository;
-        public PersonBusinessImplementation(IPersonRepository repository) {
+       // private readonly IPersonRepository _repository;
+        private IRepository<Person> _repository;
+
+        public PersonBusinessImplementation(IRepository<Person> repository)
+        {
             _repository = repository;
         }
         
+
         public List<Person> FindAll()
         {
             return _repository.FindAll();
         }
 
         public Person FindById(long id)
-        {
+        {            
             return _repository.FindById(id);
         }
 

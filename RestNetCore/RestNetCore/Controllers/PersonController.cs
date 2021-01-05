@@ -36,7 +36,7 @@ namespace RestNetCore.Controllers
         {
             var person = _personService.FindById(id);
             if (person == null) return NotFound();
-            return Ok();
+            return Ok(person);
         }
 
         [HttpPost]

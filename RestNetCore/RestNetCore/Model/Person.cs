@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RestNetCore.Model.Base;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -7,11 +8,8 @@ using System.Threading.Tasks;
 namespace RestNetCore.Model
 {
     [Table("persons")]
-    public class Person
+    public class Person: BaseEntity
     {
-        [Column("id")]
-        public int Id { get; set; }
-
         [Column("firstName")]
         public string FirstName { get; set; }
 
