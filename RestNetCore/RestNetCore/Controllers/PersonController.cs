@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RestNetCore.Model;
 using RestNetCore.Business;
+using RestNetCore.Data.VO;
 
 namespace RestNetCore.Controllers
 {
@@ -17,46 +18,65 @@ namespace RestNetCore.Controllers
     {        
 
         private readonly ILogger<PersonController> _logger;
-        private IPersonBusiness _personService;
+        private IPersonBusiness _personBusiness;
 
-        public PersonController(ILogger<PersonController> logger, IPersonBusiness personService)
+        public PersonController(ILogger<PersonController> logger, IPersonBusiness personBusiness)
         {
             _logger = logger;
-            _personService = personService;
+            _personBusiness = personBusiness;
         }
 
         [HttpGet]
+        [ProducesResponseType((200),Type = typeof(List<PersonVO>))]
+        [ProducesResponseType((204), Type = typeof(List<PersonVO>))]
+        [ProducesResponseType((400), Type = typeof(List<PersonVO>))]
+        [ProducesResponseType((401), Type = typeof(List<PersonVO>))]
         public IActionResult Get() {            
-            return Ok(_personService.FindAll());
+            return Ok(_personBusiness.FindAll());
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}")]        
+        [ProducesResponseType((200), Type = typeof(PersonVO))]
+        [ProducesResponseType((204), Type = typeof(PersonVO))]
+        [ProducesResponseType((400), Type = typeof(PersonVO))]
+        [ProducesResponseType((401), Type = typeof(PersonVO))]
         public IActionResult Get(long id)
         
         {
-            var person = _personService.FindById(id);
+            var person = _personBusiness.FindById(id);
             if (person == null) return NotFound();
             return Ok(person);
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Person person)
-        {            
+        [ProducesResponseType((200), Type = typeof(PersonVO))]        
+        [ProducesResponseType((400), Type = typeof(PersonVO))]
+        [ProducesResponseType((401), Type = typeof(PersonVO))]
+        public IActionResult Post([FromBody] PersonVO person)
+        {
             if (person == null) return BadRequest();
-            return Ok();
+            return new ObjectResult(_personBusiness.Create(person));
         }
 
         [HttpPut]
-        public IActionResult Put([FromBody] Person person)
+        [ProducesResponseType((200), Type = typeof(PersonVO))]        
+        [ProducesResponseType((400), Type = typeof(PersonVO))]
+        [ProducesResponseType((401), Type = typeof(PersonVO))]
+        public IActionResult Put([FromBody] PersonVO person)
         {
             if (person == null) return BadRequest();
-            return Ok();
+            var updatePerson = _personBusiness.Update(person);
+            if (updatePerson == null) return NoContent();
+            return new ObjectResult(_personBusiness);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}")]        
+        [ProducesResponseType((204), Type = typeof(PersonVO))]
+        [ProducesResponseType((400), Type = typeof(PersonVO))]
+        [ProducesResponseType((401), Type = typeof(PersonVO))]
         public IActionResult Delete(long id)
         {
-            var person = _personService.FindById(5);
+            var person = _personBusiness.FindById(5);
             if (person == null) return NotFound();
             return NoContent();
         }
