@@ -12,8 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RestNetCore.Model.Context;
-using RestNetCore.Services;
-using RestNetCore.Services.Implementation;
+using RestNetCore.Business;
+using RestNetCore.Business.Implementations;
 
 namespace RestNetCore
 {
@@ -34,7 +34,7 @@ namespace RestNetCore
             services.AddDbContext<MySQLContext>(options => options.UseMySql(connectionString));
             services.AddApiVersioning();
             services.AddControllers();
-            services.AddScoped<IPersonService, PersonServiceImplementation>();
+            services.AddScoped<IPersonBusiness, PersonBusinessImplementation>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

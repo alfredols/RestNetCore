@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RestNetCore.Services.Implementation
+namespace RestNetCore.Repository.Implementations
 {
-    public class PersonServiceImplementation : IPersonService
+    public class PersonRepositoryImplementation : IPersonRepository
 
     {
         private readonly MySQLContext _context;
-        public PersonServiceImplementation(MySQLContext context) {
+        public PersonRepositoryImplementation(MySQLContext context) {
             _context = context;
 
         }
@@ -83,5 +83,6 @@ namespace RestNetCore.Services.Implementation
         {
             return _context.Persons.Any(b => b.Id == id);
         }
+     
     }
 }

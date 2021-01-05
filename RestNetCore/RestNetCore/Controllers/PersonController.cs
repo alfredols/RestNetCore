@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RestNetCore.Model;
-using RestNetCore.Services;
+using RestNetCore.Business;
 
 namespace RestNetCore.Controllers
 {
@@ -17,9 +17,9 @@ namespace RestNetCore.Controllers
     {        
 
         private readonly ILogger<PersonController> _logger;
-        private IPersonService _personService;
+        private IPersonBusiness _personService;
 
-        public PersonController(ILogger<PersonController> logger, IPersonService personService)
+        public PersonController(ILogger<PersonController> logger, IPersonBusiness personService)
         {
             _logger = logger;
             _personService = personService;
@@ -53,7 +53,7 @@ namespace RestNetCore.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Dlete(long id)
+        public IActionResult Delete(long id)
         {
             var person = _personService.FindById(5);
             if (person == null) return NotFound();
