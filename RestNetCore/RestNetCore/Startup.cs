@@ -42,11 +42,39 @@ namespace RestNetCore
         {
             var connectionString = Configuration["MySqlConnection:MySqlConnectionString"];
             services.AddDbContext<MySQLContext>(options => options.UseMySql(connectionString));
-            services.AddApiVersioning();
+
+
+            if (Environment.IsDevelopment()) {
+
+                MigrateDatabase(connectionString);
+            
+            }
+                services.AddApiVersioning();
             services.AddControllers();
             
             services.AddScoped<IPersonBusiness, PersonBusinessImplementation>();
             services.AddScoped<IPersonRepository, PersonRepositoryImplementation>();
+        }
+
+        private void MigrateDatabase(string connectionString)
+        {
+            try
+            {
+
+                var evolveConnection = new MySql.Data.MySqlClient.MySqlConnection(connectionString);
+                var evolve = new Evolve.Evolve(evolveConnection, msg => Log.Logger.Information(msg))
+                {
+                    Locations = new List<string> { "db/migrations" },
+                    IsEraseDisabled = true,
+                };
+
+                evolve.Migrate();
+            }
+            catch (Exception ex)
+            {
+
+                Log.Error("Database migration failed",ex);
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
