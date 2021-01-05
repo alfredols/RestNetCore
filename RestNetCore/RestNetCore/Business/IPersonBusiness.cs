@@ -1,17 +1,14 @@
-﻿using RestNetCore.Model;
-using System;
+﻿using RestNetCore.Data.VO;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RestNetCore.Business
 {
     public interface IPersonBusiness
     {
-        Person Create(Person person);
-        Person FindById(long id);
-        Person Update(Person person);        
-        List<Person> FindAll();
+        PersonVO Create(PersonVO PersonVO);
+        PersonVO FindById(long id);
+        List<PersonVO> FindAll();
+        PersonVO Update(PersonVO PersonVO);
         void Delete(long id);
 
     }

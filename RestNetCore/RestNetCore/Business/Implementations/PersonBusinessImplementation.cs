@@ -1,4 +1,6 @@
-﻿using RestNetCore.Model;
+﻿using RestNetCore.Data.Converters;
+using RestNetCore.Data.VO;
+using RestNetCore.Model;
 using RestNetCore.Model.Context;
 using RestNetCore.Repository;
 using RestNetCore.Repository.Generic;
@@ -12,41 +14,48 @@ namespace RestNetCore.Business.Implementations
     public class PersonBusinessImplementation : IPersonBusiness
 
     {
-       // private readonly IPersonRepository _repository;
         private IRepository<Person> _repository;
+        private readonly PersonConverter _converter;
 
         public PersonBusinessImplementation(IRepository<Person> repository)
         {
             _repository = repository;
-        }
-        
+            _converter = new PersonConverter();
 
-        public List<Person> FindAll()
+        }
+
+        public PersonVO Create(PersonVO person)
         {
-            return _repository.FindAll();
+            var personEntity = _converter.Parse(person);
+            personEntity = _repository.Create(personEntity);
+            return _converter.Parse(personEntity);
         }
 
-        public Person FindById(long id)
-        {            
-            return _repository.FindById(id);
-        }
-
-        public Person Create(Person person)
+        public PersonVO FindById(long id)
         {
-            
-            return _repository.Create(person);
+            return _converter.Parse(_repository.FindById(id));
         }
-      
-        public Person Update(Person person)
-        {
 
-            return _repository.Update(person);
+        public List<PersonVO> FindAll()
+        {
+            return _converter.ParseList(_repository.FindAll());
+        }
+
+        public PersonVO Update(PersonVO person)
+        {
+            var personEntity = _converter.Parse(person);
+            personEntity = _repository.Update(personEntity);
+            return _converter.Parse(personEntity);
         }
 
         public void Delete(long id)
         {
             _repository.Delete(id);
         }
-        
+
+        public bool Exists(long id)
+        {
+            return _repository.Exists(id);
+        }
     }
 }
