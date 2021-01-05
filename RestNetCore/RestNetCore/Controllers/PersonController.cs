@@ -32,8 +32,9 @@ namespace RestNetCore.Controllers
 
         [HttpGet("{id}")]
         public IActionResult Get(long id)
+        
         {
-            var person = _personService.FindById(5);
+            var person = _personService.FindById(id);
             if (person == null) return NotFound();
             return Ok();
         }

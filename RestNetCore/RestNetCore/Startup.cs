@@ -14,27 +14,39 @@ using Microsoft.Extensions.Logging;
 using RestNetCore.Model.Context;
 using RestNetCore.Business;
 using RestNetCore.Business.Implementations;
+using RestNetCore.Repository;
+using RestNetCore.Repository.Implementations;
+using Serilog.Core;
+using Serilog;
 
 namespace RestNetCore
 {
     public class Startup
     {
-        public IConfiguration _configuration { get; }
-        
-        public Startup(IConfiguration configuration)
+        public IConfiguration Configuration { get; }
+        public IWebHostEnvironment Environment { get; }
+
+
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
-            _configuration = configuration;
+            Configuration = configuration;
+            Environment = environment;
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
         }
                 
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionString = _configuration["MySqlConnection:MySqlConnectionString"];
+            var connectionString = Configuration["MySqlConnection:MySqlConnectionString"];
             services.AddDbContext<MySQLContext>(options => options.UseMySql(connectionString));
             services.AddApiVersioning();
             services.AddControllers();
+            
             services.AddScoped<IPersonBusiness, PersonBusinessImplementation>();
+            services.AddScoped<IPersonRepository, PersonRepositoryImplementation>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
