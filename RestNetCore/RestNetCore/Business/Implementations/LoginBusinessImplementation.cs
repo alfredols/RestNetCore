@@ -48,14 +48,15 @@ namespace RestNetCore.Business.Implementations
 
             DateTime createDate = DateTime.Now;
             DateTime expirationDate = createDate.AddMinutes(_configuration.Minutes);
-
-            return new TokenVO(
-                true,
-                createDate.ToString(DATE_FORMAT),
-                expirationDate.ToString(DATE_FORMAT),
-                accessToken,
-                refreshToken
-                );
+            
+            var tokenVO = new TokenVO {
+                Authenticated = true,
+                Expiration =  expirationDate.ToString(DATE_FORMAT),
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
+            
+            return tokenVO;
         }
 
         public TokenVO ValidateCredentials(TokenVO token)
@@ -83,13 +84,15 @@ namespace RestNetCore.Business.Implementations
             DateTime createDate = DateTime.Now;
             DateTime expirationDate = createDate.AddMinutes(_configuration.Minutes);
 
-            return new TokenVO(
-                true,
-                createDate.ToString(DATE_FORMAT),
-                expirationDate.ToString(DATE_FORMAT),
-                accessToken,
-                refreshToken
-                );
+            var tokenVO = new TokenVO
+            {
+                Authenticated = true,
+                Expiration = expirationDate.ToString(DATE_FORMAT),
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
+
+            return tokenVO;
         }
 
         public bool RevokeToken(string userName)

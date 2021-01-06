@@ -111,6 +111,7 @@ namespace RestNetCore
             services.AddScoped<IPersonBusiness, PersonBusinessImplementation>();
             services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
             services.AddScoped<ILoginBusiness, LoginBusinessImplementation>();
+            
             services.AddTransient<ITokenService, TokenService>();
             services.AddScoped<IUserRepository, UserRepository>();
 
