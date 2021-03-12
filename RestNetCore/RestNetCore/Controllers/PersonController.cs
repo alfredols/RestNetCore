@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace RestNetCore.Controllers
 {
 
-    [ApiVersion("1")]
+    [ApiVersion("2")]
     [ApiController]
     [Route("api/[controller]/v{version:apiVersion}")]
     public class PersonController : ControllerBase
